@@ -12,8 +12,22 @@ import co.edu.udistrital.ciencias1arboles.trees.BinaryNode;
  */
 public class SortNode<T extends Comparable> extends BinaryNode<T> {
 
+    public SortNode(T data) {
+        this.setData(data);
+        this.setRoot(this);
+    }
+
+    public SortNode() {
+        this.setRoot(null);
+    }
+
     @Override
     public void addNode(BinaryNode newNode) {
+        if(this.getData()==null){
+            this.setData((T)newNode.getData());
+            this.setRoot(newNode);
+            return;
+        }
         if(this.getData().compareTo(newNode.getData())>0){
             if(getLeft()!=null){
                 this.getLeft().addNode(newNode);
@@ -36,7 +50,13 @@ public class SortNode<T extends Comparable> extends BinaryNode<T> {
         
         SortNode suc;
         if(node.getRight()!=null){
-            suc = successor((SortNode) node.getRight());
+            suc = ((SortNode)node.getRight()).successor();
+            if(!suc.getParent().equals(node)){
+                suc.getParent().setLeft(suc.getRight());
+            }else{
+                node.setRight(suc.getRight());
+            }
+            node.setData(suc.getData());
         }else{
             if(node.getParent().getLeft().equals(node)){
                 node.getParent().setLeft(node.getLeft());
@@ -45,28 +65,25 @@ public class SortNode<T extends Comparable> extends BinaryNode<T> {
             }
             return;
         }
-        suc.getParent().setLeft(suc.getRight());
-        node.setData(suc.getData());
     }
     
-    public SortNode<T> successor(SortNode<T> node){
-        if(node.getLeft()!=null){
-            return ((SortNode) node.getLeft()).successor(node);
+    public SortNode<T> successor(){
+        if(this.getLeft()!=null){
+            return ((SortNode) this.getLeft()).successor();
         }
         return this;
     }
     
     @Override
     public BinaryNode<T> search(Object data){
-        BinaryNode<T> node;
         if(this.getData().equals(data)){
             return this;
         }
-        node = getLeft().search(data);
-        if(node==null){
-            node = getRight().search(data);
+        if(this.getData().compareTo(data)>0){
+            return this.getLeft().search(data);
+        }else{
+            return this.getRight().search(data);
         }
-        return node;
     }
     
 }
